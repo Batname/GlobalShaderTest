@@ -3,15 +3,28 @@
 // Simple pass-through vertex shader
 void MainVS(
 	in float4 InPosition : ATTRIBUTE0,
-	out float4 Output : SV_POSITION
+	out float4 Output : SV_POSITION,
+	out float2 UV : ATTRIBUTE1
 )
 {
-	Output = InPosition; 
+	Output = InPosition;
+	UV = float2(InPosition.xy);
 }
  
 // Simple solid color pixel shader
 float4 DynamicColor;
-float4 MainPS() : SV_Target0
+float4 MainPS(
+	in float4 sv_Position : SV_POSITION,
+	in float2 UV : ATTRIBUTE1
+	) : SV_Target0
 {
-	return DynamicColor;
+	//return DynamicColor
+	if (UV.x < 0)
+	{
+		return float4(0.3, 0.0, 0.0, 1.0);
+	}
+	else
+	{
+		return DynamicColor;
+	}
 }
