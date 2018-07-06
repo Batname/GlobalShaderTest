@@ -4,8 +4,6 @@
 #include "DynamicColorShader.h"
 #include "Classes/Engine/TextureRenderTarget2D.h"
 
-static const uint32 kGridSubdivisionX = 32;
-static const uint32 kGridSubdivisionY = 16;
 
 static void DrawUVDisplacementToRenderTarget_RenderThread(
 	FRHICommandListImmediate& RHICmdList,
@@ -50,7 +48,7 @@ static void DrawUVDisplacementToRenderTarget_RenderThread(
 	GraphicsPSOInit.DepthStencilState = TStaticDepthStencilState<false, CF_Always>::GetRHI();
 	GraphicsPSOInit.BlendState = TStaticBlendState<>::GetRHI();
 	GraphicsPSOInit.RasterizerState = TStaticRasterizerState<>::GetRHI();
-	GraphicsPSOInit.PrimitiveType = PT_TriangleList;
+	GraphicsPSOInit.PrimitiveType = PT_TriangleStrip;
 	GraphicsPSOInit.BoundShaderState.VertexDeclarationRHI = GetVertexDeclarationFVector4();
 	GraphicsPSOInit.BoundShaderState.VertexShaderRHI = GETSAFERHISHADER_VERTEX(*VertexShader);
 	GraphicsPSOInit.BoundShaderState.PixelShaderRHI = GETSAFERHISHADER_PIXEL(*PixelShader);
@@ -61,17 +59,12 @@ static void DrawUVDisplacementToRenderTarget_RenderThread(
 		0, 0, 0.f,
 		OutTextureRenderTargetResource->GetSizeX(), OutTextureRenderTargetResource->GetSizeY(), 1.f);
 
-//	// Update shader uniform parameters.
-//	VertexShader->SetParameters(RHICmdList, VertexShader->GetVertexShader(), CompiledCameraModel, DisplacementMapResolution);
-//	PixelShader->SetParameters(RHICmdList, PixelShader->GetPixelShader(), CompiledCameraModel, DisplacementMapResolution);
 
 	// Call our function to set up parameters
 	PixelShader->SetColor(RHICmdList, DinamicColorApi.DynamicColor);
 
-
-	// Draw grid.
-	uint32 PrimitiveCount = kGridSubdivisionX * kGridSubdivisionY * 2;
-	RHICmdList.DrawPrimitive(PT_TriangleList, 0, PrimitiveCount, 1);
+	// Draw triangeles
+	RHICmdList.DrawPrimitive(PT_TriangleStrip, 0, 4, 1);
 
 	// Resolve render target.
 	RHICmdList.CopyToResolveTarget(
